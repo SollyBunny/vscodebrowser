@@ -1,37 +1,32 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-const vscode = require('vscode');
-
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+const vscode = require("vscode");
+const fs = require("fs");
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "helloworld-minimal-sample" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.open', () => {
-		vscode.window.createWebviewPanel(
-			"Browser",
+	context.subscriptions.push(vscode.commands.registerCommand("solly-vscode-browser.open", () => {
+		console.log("Opening browser")
+		const panel = vscode.window.createWebviewPanel(
+			"sollyVSCodeBrowser",
 			"Browser",
 			vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : vscode.ViewColumn.One,
+			vscode.ViewColumn.One,
 			{
-                // Enable javascript in the webview
                 enableScripts: true,
-        
                 // And restrict the webview to only loading content from our extension's `media` directory.
                 // localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'media')]
             }
 		);
-	});
-
-	context.subscriptions.push(disposable);
+		console.log(fs)
+		try {
+			panel.webview.html = fs.readFileSync(context.asAbsolutePath("index.html"));
+		} catch (e) {
+			console.log(e);
+			panel.webview.html = `<html><body><p>Couldn't open index.html, ${e}<p></body></html>`;
+		}
+		console.log("Finished opening browser");
+	}));
 }
 
 // this method is called when your extension is deactivated
@@ -41,4 +36,4 @@ function deactivate() {}
 module.exports = {
 	activate,
 	deactivate
-}
+};
